@@ -4,13 +4,38 @@ import folium
 from streamlit_folium import st_folium
 from folium  import plugins
 import numpy as np
+import openpyxl
+
 
 
 st.set_page_config(page_title="CROC-Contracts_overview",page_icon="😎",layout="wide")
 st.title("CROC Contracts Dashboard")
-geo_coordinates=pd.read_excel("Geocoodrinates of all countries.xlsx")
-MCL=pd.read_excel("June.xlsx")
-Final_dashboard=pd.merge(geo_coordinates,MCL,left_on="name",right_on="Region / Country",indicator="True")
+wb_obj = openpyxl.load_workbook("Geocoodrinates of all countries.xlsx")
+sheet =wb_obj.active
+
+# Extract data from rows, skipping the first row (for example, skip 1 row)
+data = []
+for row in sheet.iter_rows(values_only=True):
+    data.append(row)
+
+# Create a Pandas DataFrame
+geo_coordinates  = pd.DataFrame(data[1:],columns=data[0])
+#geo_coordinates = pd.DataFrame(wb_obj.active.values)
+
+wb_obj1 = openpyxl.load_workbook("June.xlsx")
+
+sheet =wb_obj1.active
+
+# Extract data from rows, skipping the first row (for example, skip 1 row)
+data = []
+for row in sheet.iter_rows(values_only=True):
+    data.append(row)
+
+# Create a Pandas DataFrame
+MCL  = pd.DataFrame(data[1:],columns=data[0])
+#MCL = pd.DataFrame(wb_obj1.active.values)
+
+Final_dashboard=pd.merge(geo_coordinates,MCL,left_on="name",right_on="Region",indicator="True")
 totalcounts=len(Final_dashboard)
 st.header(f"Total Contracts in CROC: {totalcounts}")
 col1, col2, col3 = st.columns(3)
